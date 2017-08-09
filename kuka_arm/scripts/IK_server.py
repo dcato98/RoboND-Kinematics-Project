@@ -198,6 +198,9 @@ def handle_calculate_IK(req):
                    r: roll, p: pitch, y: yaw}
         WC = WC_sym.evalf(subs=wc_subs)
         
+        # Note: A picture is worth a thousand words! See writeup.md (link in function docstring)
+        #        for a diagram and explanation of the sides/angles/thetas being calculated.
+        
         # solve for angles from base to wrist center
         theta[0] = atan2(WC[1], WC[0])
         # SSS triangle for theta2 and theta3
