@@ -201,7 +201,7 @@ def handle_calculate_IK(req):
         # solve for angles from base to wrist center
         theta[0] = atan2(WC[1], WC[0])
         # SSS triangle for theta2 and theta3
-        side_a = 1.501 # from where?
+        side_a = d[3].subs(dh)
         side_b = sqrt(pow((sqrt(WC[0]**2 + WC[1]**2) - a[1].subs(dh)), 2) + pow((WC[2] - d[0].subs(dh)), 2))
         side_c = a[2].subs(dh)
         angle_a = acos((side_b**2 + side_c**2 -side_a**2) / (2 * side_b * side_c))
