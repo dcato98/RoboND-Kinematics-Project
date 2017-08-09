@@ -10,6 +10,7 @@
 # Author: Harsh Pandya
 # Revision History:
 #   Aug 6, 2017 - David Cato - modify to pass submission in Udacity Pick and Place project
+#   Aug 9, 2017 - David Cato - fix copy/paste bug, use rospkg to get path, and cache more
 
 from __future__ import print_function
 from geometry_msgs.msg import Pose
@@ -20,6 +21,7 @@ from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 import dill as pickle
 import numpy as np
 import os
+import rospkg
 import rospy
 
 
@@ -85,9 +87,20 @@ def R_from_T(transform):
 ### Inverse Kinematics Server ###
 #################################
 g_symbols = None
+rospack = rospkg.RosPack()
 def handle_calculate_IK(req):
     """
     Handler for calculating inverse kinematics (IK) for the Kuka KR210 6-DOF manipulator.
+    
+    Refer to writeup.md (link below) for a detailed diagram of the kuka_arm 
+     and for explanations of the method used to calculate the theta angles.
+    https://github.com/dcato98/robotics-nd-p2/blob/master/writeup.md
+    
+    Abbreviations:
+      EE   - end-effector
+      WC   - wrist center
+      Tx_y - transform matrix between x and y
+      Rx_y - rotation matrix between x and y
     """
     n_poses = len(req.poses)
     rospy.loginfo("Received {0} eef-poses from the plan".format(n_poses))
@@ -99,7 +112,8 @@ def handle_calculate_IK(req):
     
     # Manipulator Specs
     manipulator_name = 'Kuka KR210'
-    pickled_sym_path = '/home/robond/catkin_ws/src/RoboND-Kinematics-Project/kuka_arm/scripts/{0}_syms.pkl'.format(manipulator_name.replace(' ', '_'))
+    kuka_arm_path = rospack.get_path('kuka_arm')
+    pickled_sym_path = os.path.join(kuka_arm_path, 'scripts', '{0}_syms.pkl'.format(manipulator_name.replace(' ', '_')))
     n_joints = 7  # 6 revolute joints + 1 translation to center of gripper_link
     
     # Try to retrieve syms from cache
@@ -109,7 +123,8 @@ def handle_calculate_IK(req):
     # Next try loading syms from dill-pickled file
     elif os.path.exists(pickled_sym_path):
         print("Loading symbolic variables from {0}".format(pickled_sym_path))
-        (dh, al, a, d, q, r, p, y, ee_x, ee_y, ee_z, Ti_iplus1, T0_Joint, R3_EE_sym, WC_sym) = pickle.load(open(pickled_sym_path, 'rb'))
+        g_symbols = pickle.load(open(pickled_sym_path, 'rb'))
+        (dh, al, a, d, q, r, p, y, ee_x, ee_y, ee_z, Ti_iplus1, T0_Joint, R3_EE_sym, WC_sym) = g_symbols
     # Compute the syms
     else:
         print("Calculating symbolic variables, this may take some time.")
@@ -193,7 +208,7 @@ def handle_calculate_IK(req):
         angle_b = acos((side_c**2 + side_a**2 -side_b**2) / (2 * side_c * side_a))
         angle_c = acos((side_a**2 + side_b**2 -side_c**2) / (2 * side_a * side_b))
         theta[1] = pi / 2 - angle_a - atan2(WC[2] - d[0].subs(dh), sqrt(WC[0]**2 + WC[1]**2) - a[1].subs(dh))
-        theta[2] = pi / 2 - (angle_b + 0.036) # from where? accounts for sag in link4 of -0.054m
+        theta[2] = pi / 2 - (angle_b + 0.036) # accounts for sag in link4 of -0.054m
         
         # solve for rotation matrix from wrist center to end-effector
         r3_ee_subs = {q[0]:theta[0], 
@@ -205,7 +220,7 @@ def handle_calculate_IK(req):
         # solve for angles from wrist center to end effector
         theta[4] = atan2(sqrt(R3_EE[0,2]**2 + R3_EE[2,2]**2), R3_EE[1,2])
         # reduce unnecessary rotations
-        if sin(theta5) < 0:
+        if sin(theta[4]) < 0:
             theta[3] = atan2(-R3_EE[2,2], R3_EE[0,2])
             theta[5] = atan2(R3_EE[1,1], -R3_EE[1,0])
         else:
