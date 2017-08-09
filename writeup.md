@@ -80,6 +80,7 @@ matrix row\column | 0 | 1 | 2 | 3
 1 | sin(p)sin(y)cos(r) - sin(r)cos(y) | -sin(p)sin(r)sin(y) - cos(r)cos(y) | sin(y)cos(p) | y
 2 | cos(p)cos(r) | -sin(r)cos(p) | -sin(p) | z
 3 | 0 | 0 | 0 | 1
+
 where r, p, y, x, y, and z are the roll, pitch, yaw, x-coordinate, y-coordinate, and z-coordinate of the end effector.
 
 This transform was created by multiplying the following rotation matrices in order, then appending the position vector (x, y, z), then appending row 3 (0, 0, 0, 1) to complete the transform.
