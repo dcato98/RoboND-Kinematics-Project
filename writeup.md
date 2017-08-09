@@ -56,12 +56,19 @@ These were determined by systematically labelling the links and joints, choosing
 
 **Individual transformation matrices:**
 
-matrix row | base_link to joint_1 | joint_1 to joint_2 | joint_2 to joint_3 | joint_3 to joint_4 | joint_4 to joint_5 | joint_5 to joint_6 | joint_6 to gripper_link
---- | --- | --- | --- | --- | --- | --- |
-0 | [cos(q1), -sin(q1), 0, 0] | [sin(q2), cos(q2), 0, 0.35] | [cos(q3), -sin(q3), 0, 1.25] | [cos(q4), -sin(q4), 0, -0.054] | [cos(q5), -sin(q5), 0, 0] | [cos(q6), -sin(q6), 0, 0] | [1, 0, 0, 0]
-1 | [sin(q1), cos(q1), 0, 0] | [0, 0, 1, 0] | [sin(q3), cos(q3), 0, 0] | [0, 0, 1, 1.5] | [0, 0, -1, 0] | [0, 0, 1, 0] | [0, 1, 0, 0]
-2 | [0, 0, 1, 0.75] | [cos(q2), -sin(q2), 0, 0] | [0, 0, 1, 0] | [-sin(q4), -cos(q4), 0, 0] | [sin(q5), cos(q5), 0, 0] | [-sin(q6), -cos(q6), 0, 0] | [0, 0, 1, 0.303]
-3 | [0, 0, 0, 1] | [0, 0, 0, 1] | [0, 0, 0, 1] | [0, 0, 0, 1] | [0, 0, 0, 1] | [0, 0, 0, 1] | [0, 0, 0, 1]
+matrix row | base_link to joint_1 | joint_1 to joint_2 | joint_2 to joint_3 | joint_3 to joint_4
+--- | --- | --- | --- | ---
+0 | [cos(q1), -sin(q1), 0, 0] | [sin(q2), cos(q2), 0, 0.35] | [cos(q3), -sin(q3), 0, 1.25] | [cos(q4), -sin(q4), 0, -0.054]
+1 | [sin(q1), cos(q1), 0, 0] | [0, 0, 1, 0] | [sin(q3), cos(q3), 0, 0] | [0, 0, 1, 1.5]
+2 | [0, 0, 1, 0.75] | [cos(q2), -sin(q2), 0, 0] | [0, 0, 1, 0] | [-sin(q4), -cos(q4), 0, 0]
+3 | [0, 0, 0, 1] | [0, 0, 0, 1] | [0, 0, 0, 1] | [0, 0, 0, 1]
+
+matrix row | joint_4 to joint_5 | joint_5 to joint_6 | joint_6 to gripper_link
+--- | --- | --- | ---
+0 | [cos(q5), -sin(q5), 0, 0] | [cos(q6), -sin(q6), 0, 0] | [1, 0, 0, 0]
+1 | [0, 0, -1, 0] | [0, 0, 1, 0] | [0, 1, 0, 0]
+2 | [sin(q5), cos(q5), 0, 0] | [-sin(q6), -cos(q6), 0, 0] | [0, 0, 1, 0.303]
+3 | [0, 0, 0, 1] | [0, 0, 0, 1] | [0, 0, 0, 1]
 
 These were computed symbolically using the transformation defined by DH convention and substituting values from the DH parameter table.
 
@@ -107,6 +114,6 @@ The bottleneck on IK server performance is now on calculating the angles, which 
 
 A final area of improvement would be to reduce the amount of unnecessary wrist motion by selecting the IK solution that minimizes the distance travelled between trajectory points. A small reduction in unnecesary motion was accomplished by choosing angles for joints 4 and 6 according to the the sine of the joint 5 angle, but further improvements should be possible.
 
-**Finally, just for fun, here's a picture of the robot in action: **
+**Finally, just for fun, here's a picture of the robot in action:**
 
 ![alt text][image3]
